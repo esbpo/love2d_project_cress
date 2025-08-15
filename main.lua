@@ -5,8 +5,13 @@ function love.load()
         width = love.graphics.getWidth(),
         height = love.graphics.getHeight(),
         background = love.graphics.newImage("textures/baggrund_vindue.png"),
+        hscale = 1,
+        wscale = 1,
+        scale = 1,
+        wconst = 0,
+        hconst = 0,
     }
-    Window.scale = Window.height/800
+    
     Window.x = Window.width / 2 - (Window.background:getWidth() * Window.scale) / 2
     Window.y = Window.height / 2 - (Window.background:getHeight() * Window.scale) / 2
 
@@ -33,7 +38,7 @@ function love.load()
     }
     -- Size for buttons on 800 * 800 pixels
     -- 27 * 8 pixels wide, 8 * 8 pixels high
-    -- "Plant" button begins 2 * 8 pixels in, "Vand" button begins 40 * 8 pixels in, "Høst" button begins 71 * 8 pixels in
+    -- "Plant" button begins 2 * 8 pixels in, "Vand" button begins 39 * 8 pixels in, "Høst" button begins 71 * 8 pixels in
     -- Buttons begin 88 * 8 pixels down
     Buttons.seeds = {
         x = 2 * 8,
@@ -43,7 +48,7 @@ function love.load()
     }
 
     Buttons.water = {
-        x = 40 * 8,
+        x = 39 * 8,
         y = 88 * 8,
         width = 27 * 8,
         height = 8 * 8,
@@ -196,21 +201,42 @@ function love.update(dt)
     end
 end
 
-local border = 0
 local font = love.graphics.newFont("default_font.ttf", 60)
 
 function love.resize(w, h)
+    Window.hscale = h/800
+    Window.wscale = w/800
     if w < h then
-        Window.scale = w/800
-        Window.x = w/2 - (Window.background:getWidth() * Window.scale)/ 2
-        Window.y = h/2 - (Window.background:getHeight() * Window.scale) / 2
+        Window.scale = Window.wscale
+        Window.x = w/2 - (Window.background:getWidth() * Window.wscale)/ 2
+        Window.y = h/2 - (Window.background:getHeight() * Window.wscale) / 2
     else
-        Window.scale = h/800
-        Window.x = w/2 - (Window.background:getWidth() * Window.scale)/ 2
-        Window.y = h/2 - (Window.background:getHeight() * Window.scale) / 2
+        Window.scale = Window.hscale
+        Window.x = w/2 - (Window.background:getWidth() * Window.hscale)/ 2
+        Window.y = h/2 - (Window.background:getHeight() * Window.hscale) / 2
     end
+    Window.wconst = (w - 800 * Window.scale) / 2
+    Window.hconst = (h - 800 * Window.scale) / 2
+
     Window.width = w
     Window.height = h
+    Buttons.width = 27 * 8 * Window.scale
+    Buttons.height = 8 * 8 * Window.scale
+
+    Buttons.seeds.x = 2 * 8 * Window.scale + Window.wconst
+    Buttons.seeds.y = 88 * 8 * Window.scale + Window.hconst
+    Buttons.seeds.width = Buttons.width
+    Buttons.seeds.height = Buttons.height
+
+    Buttons.water.x = 39 * 8 * Window.scale + Window.wconst
+    Buttons.water.y = 88 * 8 * Window.scale + Window.hconst
+    Buttons.water.width = Buttons.width
+    Buttons.water.height = Buttons.height
+
+    Buttons.harvest.x = 71 * 8 * Window.scale + Window.wconst
+    Buttons.harvest.y = 88 * 8 * Window.scale + Window.hconst
+    Buttons.harvest.width = Buttons.width
+    Buttons.harvest.height = Buttons.height
 end
 
 function love.draw()
@@ -219,12 +245,21 @@ function love.draw()
     love.graphics.draw(Buttons.image, Window.x, Window.y, 0, Window.scale, Window.scale)
     love.graphics.draw(UI.water_marker.image, Window.x, Window.y, 0, Window.scale, Window.scale)
     love.graphics.draw(UI.score_marker.image, Window.x, Window.y, 0, Window.scale, Window.scale)
+
     love.graphics.setColor(0,0,0)
-    love.graphics.print(tostring(math.floor(Plant.water*100 + 0.5)).."%", font, 280 + Window.x, 16 + Window.y, 0, Window.scale, Window.scale)
-    love.graphics.print(tostring(Player.score), font, 528 + Window.x, 16 + Window.y, 0, Window.scale, Window.scale)
+    love.graphics.print(tostring(math.floor(Plant.water*100 + 0.5)).."%", font, 280 * Window.scale + Window.wconst, 16 * Window.scale + Window.hconst, 0, Window.scale, Window.scale)
+    love.graphics.print(tostring(Player.score), font, 528 * Window.scale + Window.wconst, 16 * Window.scale + Window.hconst, 0, Window.scale, Window.scale)
     if Plant.quality[1] then
         love.graphics.print(Plant.quality[1], font, 360, 400, 0, Window.scale, Window.scale)
     end
     love.graphics.print(debugstring, 0, 0, 0, 1, 1)
     love.graphics.setColor(255,255,255)
+
+    -- Collision debug
+    love.graphics.setColor(255, 0, 0)
+    love.graphics.rectangle("line", Buttons.seeds.x, Buttons.seeds.y, Buttons.width, Buttons.height)
+    love.graphics.rectangle("line", Buttons.water.x, Buttons.water.y, Buttons.width, Buttons.height)
+    love.graphics.rectangle("line", Buttons.harvest.x, Buttons.harvest.y, Buttons.width, Buttons.height)
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.print(Window.wconst, 0, 50)
 end
