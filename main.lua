@@ -11,7 +11,7 @@ function love.load()
         wconst = 0,
         hconst = 0,
     }
-    
+
     Window.x = Window.width / 2 - (Window.background:getWidth() * Window.scale) / 2
     Window.y = Window.height / 2 - (Window.background:getHeight() * Window.scale) / 2
 
@@ -173,7 +173,7 @@ function love.update(dt)
     if Plant.water > 0 then
         if (not (Plant.growth_stage == 1)) and (not (Plant.growth_stage == 4)) then
             if Plant.time_to_grow == 0 then
-                Plant.time_to_grow = math.random(3, 6) -- Random time to grow in seconds
+                Plant.time_to_grow = math.random(1, 1) -- Random time to grow in seconds
                 -- debugstring = tostring(Plant.time_to_grow).."   "..tostring(1*dt)
             end
 
@@ -185,6 +185,8 @@ function love.update(dt)
             end
 
             if Plant.growth_stage == 4 then
+                MsgSpawnX = math.random(200, 400)
+                MsgSpawnY = math.random(280, 460)
 
                 local chance = math.random()
                 if chance < 0.05 then
@@ -250,7 +252,7 @@ function love.draw()
     love.graphics.print(tostring(math.floor(Plant.water*100 + 0.5)).."%", font, 280 * Window.scale + Window.wconst, 16 * Window.scale + Window.hconst, 0, Window.scale, Window.scale)
     love.graphics.print(tostring(Player.score), font, 528 * Window.scale + Window.wconst, 16 * Window.scale + Window.hconst, 0, Window.scale, Window.scale)
     if Plant.quality[1] then
-        love.graphics.print(Plant.quality[1], font, 360, 400, 0, Window.scale, Window.scale)
+        love.graphics.print(Plant.quality[1], font, MsgSpawnX * Window.scale + Window.wconst, MsgSpawnY * Window.scale + Window.hconst, 0, Window.scale, Window.scale)
     end
     love.graphics.print(debugstring, 0, 0, 0, 1, 1)
     love.graphics.setColor(255,255,255)
